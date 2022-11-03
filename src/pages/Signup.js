@@ -35,7 +35,7 @@ export function  SignUp ( props ) {
              event.preventDefault()
              //capture data from form 
              const data = new FormData ( event.target )
-             props.handler(data.get("useremail"), data.get("userpw"))
+             props.handler(data.get("useremail"), data.get("userpd"))
              .then(()=>console.log("success"))
              .catch((error) => {
                  //console.log("ooops")

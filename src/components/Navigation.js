@@ -14,9 +14,9 @@ export function Navigation ( props ){
 
     if (navItems.length > 0 ) {
         // NavigationLinks colletction return html each time in the array 
-        const NavigationLinks = navItems.map( ( item ) => {
+        const NavigationLinks = navItems.map( ( item, itemKey  ) => {
          return (
-             <NavLink to = {item.path} className = "nav-link"> {item.name} </NavLink>
+             <NavLink to = {item.path} className = "nav-link" key ={itemKey} > {item.name} </NavLink>
          )
         })
         

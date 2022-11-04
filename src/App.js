@@ -1,76 +1,109 @@
-//import page component
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react'
 import './App.css';
 import { Header } from './components/Header'
 import { Footer } from './components/Footer'
-import { Routes, Route, Outlet, Link } from 'react-router-dom';
-
-//import page component
+import { Routes, Route } from 'react-router-dom';
+// import page components
 import { Home } from './pages/Home'
-import { About } from './pages/About'
 import { Contact } from './pages/Contact'
-import { SignUp } from './pages/Signup'
+import { About } from './pages/About'
+import { Signup } from './pages/Signup'
+import { Signout } from './pages/Signout'
+import { Signin } from './pages/Signin'
 
-//import firebase 
-import { initializeApp } from "firebase/app";
-import { FirebaseConfig } from "./config/FirebaseConfig"
-//import { getAnalytics } from "firebase/analytics";
+// import firebase
+import { initializeApp } from "firebase/app"
+import { FirebaseConfig } from './config/FirebaseConfig'
+// import firebase auth
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut
+}
+  from "firebase/auth"
 
-//import firebase auth
-import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged } from "firebase/auth"
-
-//initialise Firebase
+// initialise Firebase
 const FBapp = initializeApp(FirebaseConfig)
-
-//initialise firebase authentificaton
+// initialise Firebase Auth
 const FBauth = getAuth(FBapp)
 
 
-
-
-//function to create user account
+// function to create user account
 const signup = (email, password) => {
   return new Promise((resolve, reject) => {
     createUserWithEmailAndPassword(FBauth, email, password)
       .then((userCredential) => resolve(userCredential.user))
       .catch((error) => {
-        console.log(error)
+        // console.log(error)
         reject(error)
       })
   })
+}
+
+const signin = (email, password ) => {
+  return new Promise( ( resolve, reject ) => {
+    signInWithEmailAndPassword( FBauth, email, password )
+      .then((userCredential) => resolve(userCredential.user) )
+      .catch( (error) => reject(error) )
+  } )
+}
+
+const signoutuser = () => {
+  return new Promise((resolve, reject) => {
+    signOut(FBauth)
+      .then(() => resolve(true))
+      .catch((error) => reject(error))
+  })
+
 }
 
 const NavData = [
   { name: "Home", path: "/", public: true },
   { name: "About", path: "/about", public: true },
   { name: "Contact", path: "/contact", public: true },
-  { name: "Sign Up", path: "/signup", public: true }
+  { name: "Sign Up", path: "/signup", public: true },
+  { name: "Sign in", path: "/signin", public: true }
+]
 
+const NavDataAuth = [
+  { name: "Home", path: "/", public: true },
+  { name: "About", path: "/about", public: true },
+  { name: "Contact", path: "/contact", public: true },
+  { name: "Sign out", path: "/signout", public: true }
 ]
 
 function App() {
-  const [auth, setauth] = useState()
+  const [auth, setAuth] = useState()
+  const [nav, setNav] = useState(NavData)
 
-  //an observer to determine user authentification status
+  // an observer to determine user's authentication status
   onAuthStateChanged(FBauth, (user) => {
     if (user) {
-      //visitor is authneticated
-      setauth(user)
+      // visitor is authenticated
+      console.log(user)
+      setAuth(user)
+      setNav(NavDataAuth)
     }
     else {
-      //if user is null means visitor is not authwenticated
-      setauth(null)
+      // if user is null means visitor is not authenticated
+      console.log('not signed in')
+      setAuth(null)
+      setNav(NavData)
     }
   })
 
   return (
     <div className="App">
-      <Header title="My app" headernav={NavData} />
+      <Header title="My app" headernav={nav} />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
-        <Route path="/signup" element={<SignUp handler={signup} />} />
+        <Route path="/signup" element={<Signup handler={signup} />} />
+        <Route path="/signout" element={<Signout handler={signoutuser} auth={auth} />} />
+        <Route path="/signin" element={<Signin handler={signin} />} />
       </Routes>
       <Footer year="2022" />
     </div>
